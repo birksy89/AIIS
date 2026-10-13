@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Evidence {
+  investigationId String
+  id              String
+  source          String
+  title           String
+  body            String
+  service         String?
+  observedAt      DateTime
+  waveNumber      Int
+  origin          String
+  createdAt       DateTime @default(now())
+
+  @@id([investigationId, id])
+  @@index([investigationId, waveNumber])
+}
+
+model InvestigationRevision {
+  id              Int      @id @default(autoincrement())
+  investigationId String
+  waveNumber      Int
+  trigger         String
+  clock           DateTime
+  delta           Json
+  state           Json
+  rejectedClaims  Json
+  trace           Json
+  createdAt       DateTime @default(now())
+
+  @@unique([investigationId, waveNumber])
+}

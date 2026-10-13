@@ -10,12 +10,21 @@ export default defineConfig({
     builtin: true,
     node: true,
   },
-  ignorePatterns: [".agents/**", ".claude/**", "dist/**", "coverage/**"],
+  ignorePatterns: [
+    ".agents/**",
+    ".claude/**",
+    "dist/**",
+    "coverage/**",
+    ".next/**",
+    "src/generated/**",
+    "next-env.d.ts",
+  ],
   options: {
     denyWarnings: true,
     reportUnusedDisableDirectives: "error",
   },
   rules: {
     "typescript/no-explicit-any": "error",
+    "import/no-unassigned-import": ["error", { allow: ["**/*.css", "dotenv/config"] }],
   },
 });

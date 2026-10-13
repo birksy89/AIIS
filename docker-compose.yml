@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: aiis
+      POSTGRES_PASSWORD: aiis
+      POSTGRES_DB: aiis
+    ports:
+      - "5433:5432"
+    volumes:
+      - aiis-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiis -d aiis"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  aiis-pg:
