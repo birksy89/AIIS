@@ -1,0 +1,3 @@
+# Hybrid workflow with a single investigator agent
+
+A Wave is processed by a Mastra workflow: deterministic ingest and timeline ordering, then one tool-using investigator agent that emits a delta, then a deterministic verifier that rejects any claim citing Evidence that does not exist or is not yet visible, with one repair attempt before dropping and flagging the claim. We rejected a supervisor with specialist sub-agents because, at this data size, splitting by source (logs, deploys, history) adds handoffs and latency without better reasoning, and the cross-source weighing is exactly what one agent with good tools does well. Code owns anything that must be correct (ordering, time-gating, citation validity); the model owns judgement.
