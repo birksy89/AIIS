@@ -1,6 +1,5 @@
 import type { Delta } from "./delta";
 import type { EvidenceItem, Hypothesis, Investigation } from "./state";
-import { currentClassification } from "./state";
 
 export function ingestEvidence(
   state: Investigation,
@@ -43,10 +42,10 @@ export function applyDelta(
 
   const classifications = { ...state.classifications };
   for (const entry of delta.classifyEvidence) {
-    const current = currentClassification(state, entry.evidenceId);
-    if (current?.classification === entry.classification) continue;
+    const history = classifications[entry.evidenceId] ?? [];
+    if (history.at(-1)?.classification === entry.classification) continue;
     classifications[entry.evidenceId] = [
-      ...(classifications[entry.evidenceId] ?? []),
+      ...history,
       { classification: entry.classification, reason: entry.reason, waveNumber: wave },
     ];
   }

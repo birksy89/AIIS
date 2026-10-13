@@ -21,9 +21,13 @@ export function useInvestigation() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const loading = useRef(false);
+  const pending = useRef(false);
 
   const refresh = useCallback(async () => {
-    if (loading.current) return;
+    if (loading.current) {
+      pending.current = true;
+      return;
+    }
     loading.current = true;
     try {
       const response = await fetch("/api/investigation", { cache: "no-store" });
@@ -36,6 +40,10 @@ export function useInvestigation() {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
       loading.current = false;
+    }
+    if (pending.current) {
+      pending.current = false;
+      void refresh();
     }
   }, []);
 

@@ -202,11 +202,15 @@ function AddEvidence({
   const [sending, setSending] = useState(false);
 
   const submit = async () => {
-    if (!text.trim()) return;
+    const value = text.trim();
+    if (!value || sending) return;
     setSending(true);
-    await onAddEvidence(text.trim(), null);
-    setText("");
-    setSending(false);
+    try {
+      await onAddEvidence(value, null);
+      setText("");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (

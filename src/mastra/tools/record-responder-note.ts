@@ -14,7 +14,18 @@ export const recordResponderNoteTool = createTool({
   execute: async ({ title, note }, context) => {
     const run = runFrom(context?.requestContext);
     const { addAdHocEvidence } = await import("@/server/investigation-service");
-    void addAdHocEvidence({ text: note, title: `Responder Note: ${title}`, origin: "responder" });
+    void addAdHocEvidence({
+      text: note,
+      title: `Responder Note: ${title}`,
+      origin: "responder",
+    }).catch((error: unknown) => {
+      const detail = error instanceof Error ? error.message : String(error);
+      run.record({
+        kind: "error",
+        name: "recordResponderNote",
+        detail: `Responder Note failed (${title}): ${detail}`,
+      });
+    });
     run.record({
       kind: "stage",
       name: "recordResponderNote",

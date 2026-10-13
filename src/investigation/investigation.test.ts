@@ -66,6 +66,30 @@ describe("applyDelta", () => {
     expect(second.classifications["alert-disk"].map((c) => c.waveNumber)).toEqual([1, 3]);
   });
 
+  it("skips a repeated classification against the latest entry in the same delta", () => {
+    const next = applyDelta(
+      waveOne(),
+      delta({
+        classifyEvidence: [
+          { evidenceId: "alert-disk", classification: "signal", reason: "maybe" },
+          { evidenceId: "alert-disk", classification: "signal", reason: "same again" },
+          { evidenceId: "alert-disk", classification: "noise", reason: "flapper" },
+          { evidenceId: "alert-disk", classification: "noise", reason: "still a flapper" },
+        ],
+      }),
+      { retrieved: {} },
+    );
+
+    expect(next.classifications["alert-disk"].map((entry) => entry.classification)).toEqual([
+      "signal",
+      "noise",
+    ]);
+    expect(next.classifications["alert-disk"].map((entry) => entry.reason)).toEqual([
+      "maybe",
+      "flapper",
+    ]);
+  });
+
   it("keeps a confidence trajectory across waves and accumulates evidence", () => {
     const opened = applyDelta(waveOne(), delta({ openHypothesis: [openDeploy] }), {
       retrieved: {},

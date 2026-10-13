@@ -10,7 +10,7 @@ import { loadState } from "@/server/investigation-store";
 export const maxDuration = 120;
 
 export async function POST(request: Request) {
-  const params = await request.json();
+  const { messages } = await request.json();
   const state = await loadState();
   const run = new InvestigationRun(state.clock, state.waveNumber);
   const stream = await handleChatStream({
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     agentId: "responder-chat",
     version: "v7",
     params: {
-      ...params,
+      messages,
       maxSteps: 8,
       requestContext: run.toRequestContext(),
       memory: { thread: CHAT_THREAD_ID, resource: CHAT_RESOURCE_ID },
