@@ -28,6 +28,7 @@ Things to try:
 Other commands:
 
 ```bash
+pnpm db:studio   # Prisma Studio at http://localhost:5555 (Evidence and revisions)
 pnpm test        # Vitest: verifier, delta application, time-gated tools, dataset invariants
 pnpm eval        # headless replay of all 5 Waves with assertions; rewrites docs/sample-output.md
 pnpm eval 2      # replay only the first 2 Waves

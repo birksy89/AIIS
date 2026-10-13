@@ -1,6 +1,14 @@
 "use client";
 
-import { AlertTriangle, Check, CircleHelp, Copy, ListChecks, Sparkles } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  CircleHelp,
+  Copy,
+  ListChecks,
+  Loader2,
+  Sparkles,
+} from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -22,22 +30,42 @@ import { CONFIDENCE_LEVEL, CONFIDENCE_STYLE, hhmm, STATUS_STYLE } from "./format
 export function Brief({
   state,
   revisions,
+  busy,
+  activity,
 }: {
   state: Investigation;
   revisions: RevisionSummary[];
+  busy: boolean;
+  activity: string | null;
 }) {
   const latest = revisions.at(-1);
 
   if (state.waveNumber === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-10 text-center">
-        <Sparkles className="size-8 text-muted-foreground" />
-        <h2 className="text-lg font-semibold">No Investigation yet</h2>
-        <p className="max-w-md text-sm text-muted-foreground">
-          Press <span className="font-medium text-foreground">Next wave</span> to replay the
-          incident. Each Wave delivers new Evidence; the investigator queries logs, metrics,
-          deploys, the service catalogue and past incidents, then updates this brief.
-        </p>
+        {busy ? (
+          <>
+            <Loader2 className="size-8 animate-spin text-sky-300" />
+            <h2 className="text-lg font-semibold">Investigating Wave 1</h2>
+            <p className="max-w-md text-sm text-muted-foreground">
+              New Evidence is in. The investigator is querying logs, metrics, deploys, the service
+              catalogue and past incidents. This brief updates when the Wave finishes.
+            </p>
+            {activity && (
+              <p className="max-w-lg text-xs leading-relaxed text-sky-300">{activity}</p>
+            )}
+          </>
+        ) : (
+          <>
+            <Sparkles className="size-8 text-muted-foreground" />
+            <h2 className="text-lg font-semibold">No Investigation yet</h2>
+            <p className="max-w-md text-sm text-muted-foreground">
+              Press <span className="font-medium text-foreground">Next wave</span> to replay the
+              incident. Each Wave delivers new Evidence; the investigator queries logs, metrics,
+              deploys, the service catalogue and past incidents, then updates this brief.
+            </p>
+          </>
+        )}
       </div>
     );
   }
@@ -45,6 +73,20 @@ export function Brief({
   return (
     <ScrollArea className="h-full">
       <div className="mx-auto max-w-3xl space-y-6 p-6">
+        {busy && (
+          <div className="flex items-start gap-2 rounded-lg border border-sky-500/30 bg-sky-500/10 p-3 text-sm">
+            <Loader2 className="mt-0.5 size-4 shrink-0 animate-spin text-sky-300" />
+            <div className="min-w-0">
+              <p className="font-medium text-sky-300">
+                Wave {state.waveNumber + 1} · investigating
+              </p>
+              <p className="mt-1 leading-relaxed text-muted-foreground">
+                {activity ??
+                  "This brief still shows the last finished Wave. It updates when this one finishes."}
+              </p>
+            </div>
+          </div>
+        )}
         {latest?.waveNote && (
           <div className="rounded-lg border border-sky-500/30 bg-sky-500/10 p-3 text-sm">
             <p className="mb-1 text-xs font-medium text-sky-300">

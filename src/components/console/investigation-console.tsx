@@ -112,7 +112,12 @@ export function InvestigationConsole() {
             />
           </aside>
           <section className="min-h-0">
-            <Brief state={state} revisions={revisions} />
+            <Brief
+              state={state}
+              revisions={revisions}
+              busy={busy}
+              activity={currentStep ? `${currentStep.name}: ${currentStep.detail}` : null}
+            />
           </section>
           <aside className="min-h-0 border-l">
             <Tabs defaultValue="chat" className="flex h-full flex-col gap-0">
