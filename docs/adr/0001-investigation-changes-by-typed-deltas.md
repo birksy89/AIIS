@@ -1,0 +1,3 @@
+# Investigation changes only by typed per-Wave deltas
+
+Each Wave produces a typed delta (add Signal, reclassify Evidence as Noise, open/revise/refute a Hypothesis, add Open Question or Next Action) that deterministic code validates and applies, storing one revision per Wave. We rejected regenerating the whole brief each Wave because it silently drifts, loses earlier reasoning, and makes "what changed and why" impossible to show; deltas make memory inspectable and let the UI show confidence trajectories and reclassifications. Conversation with the responder never edits state directly; it can only add a Responder Note, which triggers a new Wave.

@@ -1,0 +1,96 @@
+import type { ServiceNode } from "./types";
+
+export const serviceGraph: ServiceNode[] = [
+  {
+    id: "svc-web-storefront",
+    name: "web-storefront",
+    kind: "service",
+    team: "Storefront",
+    onCall: "@ines",
+    dependsOn: [{ service: "edge-gateway", note: "all browser traffic" }],
+    notes: "Next.js storefront. Calls checkout-api via edge-gateway.",
+  },
+  {
+    id: "svc-edge-gateway",
+    name: "edge-gateway",
+    kind: "infrastructure",
+    team: "Storefront",
+    onCall: "@ines",
+    dependsOn: [{ service: "checkout-api", note: "/checkout, /cart" }],
+    notes: "Edge proxy and bot filtering. /legacy/* routes were retired in 2025 and return 404.",
+  },
+  {
+    id: "svc-checkout-api",
+    name: "checkout-api",
+    kind: "service",
+    team: "Checkout",
+    onCall: "@dan",
+    dependsOn: [
+      { service: "orders-db", note: "primary, read/write; pg pool max=20 per pod, 3 pods" },
+      { service: "inventory-service", note: "reserveStock before order insert" },
+      { service: "payments-gateway", note: "payment capture after order insert" },
+    ],
+    notes: "Tier-1. Order flow: reserve stock -> insert order -> capture payment.",
+  },
+  {
+    id: "svc-inventory-service",
+    name: "inventory-service",
+    kind: "service",
+    team: "Fulfilment",
+    onCall: "@sam",
+    dependsOn: [{ service: "orders-db", note: "primary; pg pool max=10 per pod, 2 pods" }],
+    notes: "Tier-1. Stock reservations live in orders-db.",
+  },
+  {
+    id: "svc-reporting-worker",
+    name: "reporting-worker",
+    kind: "service",
+    team: "Data Platform",
+    onCall: "@maya",
+    dependsOn: [
+      {
+        service: "orders-db-replica",
+        note: "MUST read from the replica. Primary is reserved for transactional traffic (see INC-1987 action items).",
+      },
+    ],
+    notes:
+      "Tier-3 batch exporter for finance dashboards. Deployed through the data-platform Airflow pipeline, not argo-cd.",
+  },
+  {
+    id: "svc-orders-db",
+    name: "orders-db",
+    kind: "database",
+    team: "Platform DB",
+    onCall: "@kofi",
+    dependsOn: [],
+    notes:
+      "PostgreSQL 15 primary (orders-db-primary.internal). max_connections=100, no pgbouncer yet. Connection budget: checkout-api 60, inventory-service 20, admin 5.",
+  },
+  {
+    id: "svc-orders-db-replica",
+    name: "orders-db-replica",
+    kind: "database",
+    team: "Platform DB",
+    onCall: "@kofi",
+    dependsOn: [{ service: "orders-db", note: "streaming replication" }],
+    notes: "Read replica for analytics and batch workloads (orders-db-replica.internal).",
+  },
+  {
+    id: "svc-payments-gateway",
+    name: "payments-gateway",
+    kind: "external",
+    team: "Payments",
+    onCall: "@ravi",
+    dependsOn: [],
+    notes: "External PSP. Status page: all systems operational.",
+  },
+  {
+    id: "svc-logging-host",
+    name: "logging-host",
+    kind: "infrastructure",
+    team: "Observability",
+    onCall: "@lena",
+    dependsOn: [],
+    notes: "Log shipping hosts. Disk alert on logging-host-02 is a known flapper (ticket OBS-412).",
+  },
+];
